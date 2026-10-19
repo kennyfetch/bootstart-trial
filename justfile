@@ -1,5 +1,4 @@
-# Template justfile. /init-project replaces it with the chosen stack pack's justfile.
-# Until then, the standard recipes only print a hint, and `selftest` validates every pack.
+# Python stack: uv + Ruff + Pyright + pytest. Recipe contract: docs/STACKS.md.
 
 set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 
@@ -7,22 +6,35 @@ set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 default:
     @{{ just_executable() }} --list
 
-setup: _not-initialized
-dev: _not-initialized
-format: _not-initialized
-fix: _not-initialized
-lint: _not-initialized
-typecheck: _not-initialized
-test: _not-initialized
-check: _not-initialized
+# Install dependencies into .venv (CI sets UV_LOCKED=1, so a stale lockfile fails there)
+setup:
+    uv sync
 
-# Run setup + check in every stack pack (template maintenance)
-selftest:
-    {{ just_executable() }} --justfile stacks/python/justfile --working-directory stacks/python setup
-    {{ just_executable() }} --justfile stacks/python/justfile --working-directory stacks/python check
-    {{ just_executable() }} --justfile stacks/typescript/justfile --working-directory stacks/typescript setup
-    {{ just_executable() }} --justfile stacks/typescript/justfile --working-directory stacks/typescript check
+# Run the CLI locally; extra arguments go to the app (e.g. just dev --help)
+dev *args:
+    uv run bootstart-trial {{ args }}
 
-[private]
-_not-initialized:
-    @echo "Template not initialized: run /init-project (or follow .claude/skills/init-project/SKILL.md)."
+# Format code in place (also run by the Claude Code edit hook)
+format:
+    uv run ruff format .
+
+# Format and apply safe lint fixes
+fix: format
+    uv run ruff check --fix .
+
+# Check lockfile, formatting and lint rules without changing files
+lint:
+    uv lock --check
+    uv run ruff format --check .
+    uv run ruff check .
+
+# Static type checking
+typecheck:
+    uv run pyright
+
+# Run tests with coverage; extra arguments go to pytest
+test *args:
+    uv run pytest {{ args }}
+
+# Everything CI runs
+check: lint typecheck test

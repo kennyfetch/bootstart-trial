@@ -5,11 +5,13 @@ behind choices belong in `docs/decisions/`.
 
 ## Purpose
 
-_What the system does and for whom, in two or three sentences._
+A command-line tool that converts temperatures between Celsius, Fahrenheit and Kelvin, for anyone
+who needs a quick, exact conversion in a terminal.
 
 ## Context
 
-_Users, external systems and services it talks to (APIs, databases, queues, files)._
+A single user runs it locally in a terminal. It talks to no external system: input comes from
+command-line arguments, output goes to standard output and errors to standard error.
 
 ## Module map
 
@@ -23,7 +25,8 @@ _The two or three most important flows, step by step (e.g. "an order is placed")
 
 ## Constraints
 
-_Performance, security, privacy, platforms, offline use, budget — whatever shapes the design._
+- Runs on Windows, macOS and Linux with Python 3.14; fully offline.
+- No hard performance, security or privacy constraint: no data is stored or sent anywhere.
 
 ## Key decisions
 

@@ -1,6 +1,6 @@
 import pytest
 
-from project_name.pricing import apply_discount
+from bootstart_trial.pricing import apply_discount
 
 
 @pytest.mark.parametrize(
