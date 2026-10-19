@@ -30,4 +30,5 @@ def convert(
         converted = convert_temperature(temperature, from_unit, to_unit)
     except ValueError as error:
         raise typer.BadParameter(str(error), param_hint="TEMPERATURE") from error
-    typer.echo(f"{converted:.2f}")
+    # Adding 0.0 turns a rounded -0.0 into 0.0, so tiny negative results do not print as "-0.00".
+    typer.echo(f"{round(converted, 2) + 0.0:.2f}")

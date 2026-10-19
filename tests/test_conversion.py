@@ -1,3 +1,6 @@
+import math
+import re
+
 import pytest
 
 from bootstart_trial.conversion import TemperatureUnit, convert_temperature
@@ -53,5 +56,11 @@ def test_convert_temperature_accepts_absolute_zero(
 def test_convert_temperature_rejects_value_below_absolute_zero(
     temperature: float, unit: TemperatureUnit
 ) -> None:
-    with pytest.raises(ValueError, match=str(temperature)):
+    with pytest.raises(ValueError, match=re.escape(str(temperature))):
         convert_temperature(temperature, unit, CELSIUS)
+
+
+@pytest.mark.parametrize("temperature", [math.nan, math.inf, -math.inf])
+def test_convert_temperature_rejects_non_finite_value(temperature: float) -> None:
+    with pytest.raises(ValueError, match="finite"):
+        convert_temperature(temperature, CELSIUS, FAHRENHEIT)

@@ -24,9 +24,9 @@ command-line arguments, output goes to standard output and errors to standard er
 ## Main flows
 
 1. **A temperature is converted:** `bootstart-trial convert -40 --from C --to F` → `cli.convert`
-   parses the value and units → `conversion.convert_temperature` validates it against absolute zero
-   and converts through Celsius → the CLI prints the result with two decimals. A value below
-   absolute zero becomes a usage error (exit code 2) naming the value.
+   parses the value and units → `conversion.convert_temperature` checks that it is finite and not
+   below absolute zero, then converts through Celsius → the CLI prints the result with two
+   decimals. An invalid value becomes a usage error (exit code 2) naming the value.
 
 ## Constraints
 

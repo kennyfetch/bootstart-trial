@@ -1,5 +1,6 @@
 """Temperature conversion between Celsius, Fahrenheit and Kelvin. Pure functions, no I/O."""
 
+import math
 from enum import StrEnum
 
 
@@ -30,8 +31,11 @@ def convert_temperature(
     """Return `temperature`, expressed in `from_unit`, converted to `to_unit`.
 
     Raises:
-        ValueError: If `temperature` is below absolute zero in `from_unit`.
+        ValueError: If `temperature` is not finite or is below absolute zero in `from_unit`.
     """
+    # NaN compares false with everything, so it would slip through the absolute-zero check.
+    if not math.isfinite(temperature):
+        raise ValueError(f"temperature must be a finite number, got {temperature}")
     absolute_zero = ABSOLUTE_ZERO_BY_UNIT[from_unit]
     if temperature < absolute_zero:
         raise ValueError(

@@ -4,27 +4,30 @@ Snapshot of where the work stands, so anyone — human or AI — can pick it up 
 Overwritten (not appended) at the end of each session by the `handoff` workflow. Git is the log.
 Keep it under ~60 lines.
 
-**Last updated:** 2026-10-19 · **Branch:** `feat/convert-command` · **Commit:** `a849712` (base; this
+**Last updated:** 2026-10-19 · **Branch:** `feat/convert-command` · **Commit:** `58f0c56` (base; this
 note ships in the commit on top of it)
 
 ## Current state
 
 - `bootstart-trial convert <temperature> --from C|F|K --to C|F|K` converts a temperature and prints
   it with two decimals (`just dev convert -40 --from C --to F`). Units are case-insensitive.
-- A value below absolute zero in its source unit is a usage error (exit code 2) naming the value.
+- A non-finite value (`nan`, `inf`) or a value below absolute zero in its source unit is a usage
+  error (exit code 2) naming the value. Tiny negative results print as `0.00`, not `-0.00`.
 - Conversion logic lives in `src/bootstart_trial/conversion.py` and does not import Typer; the CLI
   is in `src/bootstart_trial/cli.py`. See `docs/ARCHITECTURE.md`.
-- `just check` passes (29 tests, 97 % coverage).
+- `just check` passes (34 tests, 97 % coverage).
 
 ## In progress
 
-- `feat/convert-command`: the `convert` command, being shipped as a pull request.
+- [PR #1](https://github.com/kennyfetch/bootstart-trial/pull/1) (`feat/convert-command`): the
+  `convert` command, open and waiting for green CI and a squash merge.
 
 ## Next steps
 
-1. Reject non-finite input in `convert_temperature` (`nan`, `inf`): today `convert nan --from C
-   --to F` prints `nan` with exit code 0. Add tests in `tests/test_conversion.py` and through the CLI.
-2. Avoid printing `-0.00` for tiny negative results (e.g. `convert -0.001 --from C --to C`).
+1. Reject results that overflow to infinity: `convert 1e308 --from C --to F` prints `inf` with exit
+   code 0. Check `math.isfinite` on the converted value too, with tests in both test files.
+2. Raise a specific `InvalidTemperatureError(ValueError)` in `conversion.py` and catch only that in
+   the CLI, so an unrelated `ValueError` is not reported as bad input (CONVENTIONS §5).
 3. Delete the template's `pricing` example (`src/bootstart_trial/pricing.py`,
    `tests/test_pricing.py`) and its row in `docs/ARCHITECTURE.md`.
 

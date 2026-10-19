@@ -36,8 +36,22 @@ def test_convert_accepts_negative_temperature() -> None:
 def test_convert_fails_below_absolute_zero() -> None:
     result = runner.invoke(app, ["convert", "-500", "--from", "C", "--to", "K"])
 
-    assert result.exit_code != 0
+    assert result.exit_code == 2
     assert "-500" in result.stderr
+
+
+def test_convert_fails_on_non_finite_temperature() -> None:
+    result = runner.invoke(app, ["convert", "nan", "--from", "C", "--to", "F"])
+
+    assert result.exit_code == 2
+    assert "finite" in result.stderr
+
+
+def test_convert_prints_zero_without_minus_sign() -> None:
+    result = runner.invoke(app, ["convert", "-0.001", "--from", "C", "--to", "C"])
+
+    assert result.exit_code == 0
+    assert result.stdout == "0.00\n"
 
 
 def test_convert_rejects_unknown_unit() -> None:
