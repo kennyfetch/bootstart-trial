@@ -17,11 +17,16 @@ command-line arguments, output goes to standard output and errors to standard er
 
 | Path | Responsibility |
 |---|---|
-| `src/…` | _…_ |
+| `src/bootstart_trial/cli.py` | Typer entry point: parses arguments, prints results and errors |
+| `src/bootstart_trial/conversion.py` | Pure temperature conversion and absolute-zero validation |
+| `src/bootstart_trial/pricing.py` | Template example module, to delete (see `docs/HANDOFF.md`) |
 
 ## Main flows
 
-_The two or three most important flows, step by step (e.g. "an order is placed")._
+1. **A temperature is converted:** `bootstart-trial convert -40 --from C --to F` → `cli.convert`
+   parses the value and units → `conversion.convert_temperature` validates it against absolute zero
+   and converts through Celsius → the CLI prints the result with two decimals. A value below
+   absolute zero becomes a usage error (exit code 2) naming the value.
 
 ## Constraints
 
